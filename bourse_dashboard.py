@@ -8,6 +8,7 @@
 #  Dépendances : pip install yfinance requests pillow matplotlib
 #
 #  Auteur : Jean-François BRUNET – JFBConseils – Juin 2026
+#  rév.   : Octobre 2026
 # =============================================================================
 
 import tkinter as tk
@@ -204,7 +205,7 @@ SP500_SYMBOLS = {
     "NXP Semiconductors":        "NXPI",
     "Oracle":                    "ORCL",
     "Palo Alto Networks":        "PANW",
-    "Paramount Skydance":        "PSKY",
+    "Skydance Corporation":      "SKYD",  # ex Paramount Skydance (PSKY), NYSE depuis le 6 oct. 2026
     "PayPal":                    "PYPL",
     "PepsiCo":                   "PEP",
     "Pfizer":                    "PFE",
@@ -237,7 +238,6 @@ SP500_SYMBOLS = {
     "Visa":                      "V",
     "Walmart":                   "WMT",
     "Walt Disney":               "DIS",
-    "Warner Bros. Discovery":    "WBD",
     "Western Digital":           "WDC",
     "Zimmer Biomet":             "ZBH",
 }
@@ -449,6 +449,17 @@ def _fetch_yf_one(name: str, symbol: str) -> FetchResult:
     if exc[0]:
         return FetchResult(error=f"{name} ({symbol}) : {type(exc[0]).__name__} — {exc[0]}")
     price, prev = result[0]
+    # Repli : si previous_close est absent 
+    # (fréquent après une opération sur titres / un changement de ticker),
+    # on le déduit de l'historique
+    if price and not prev:
+        try:
+            hist = yf.Ticker(symbol).history(period="5d", auto_adjust=False)
+            closes = hist["Close"].dropna()
+            if len(closes) >= 2:
+                prev = float(closes.iloc[-2])
+        except Exception:
+            pass
     if price and prev and prev > 0:
         return FetchResult(data={"price": price,
                                   "change_pct": (price-prev)/prev*100,
@@ -1626,6 +1637,11 @@ if __name__ == "__main__":
                          if k in set(_config.get("cac40_selection", []))}
     with _us_symbols_lock:
         _saved_us = set(_config.get("us_selection", []))
+        # Migration : valeurs renommées / disparues
+        if "Paramount Skydance" in _saved_us:
+            _saved_us.discard("Paramount Skydance")
+            _saved_us.add("Skydance Corporation")
+        _saved_us.discard("Warner Bros. Discovery")   # n'est plus coté (rachat)
         if _saved_us:
             US_SYMBOLS_ACTIVE = {k: v for k, v in US_ALL_SYMBOLS.items()
                                   if k in _saved_us}

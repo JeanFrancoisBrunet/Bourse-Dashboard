@@ -86,7 +86,6 @@
     "Oracle",
     "PTC Inc.",
     "Palo Alto Networks",
-    "Paramount Skydance",
     "PayPal",
     "PepsiCo",
     "Pfizer",
@@ -100,6 +99,7 @@
     "S&P Global",
     "Salesforce",
     "Sandisk",
+    "Skydance Corporation",
     "SpaceX",
     "Stanley Black & Decker",
     "Starbucks",
@@ -118,7 +118,6 @@
     "Visa",
     "Walmart",
     "Walt Disney",
-    "Warner Bros. Discovery",
     "Western Digital",
     "Zimmer Biomet",
     "eBay"
@@ -168,7 +167,7 @@
   "chart_slots": [
     {
       "name": "LISI",
-      "period": "1 mois"
+      "period": "1 sem"
     },
     {
       "name": "SpaceX",
